@@ -3,10 +3,12 @@
 
 namespace FFT.FileManagement
 {
+  using System.Buffers;
   using System.IO;
   using System.Linq;
   using System.Threading;
   using System.Threading.Tasks;
+  using static System.Math;
 
   internal sealed class FileManagerImplementation : IFileManager
   {
@@ -79,6 +81,24 @@ namespace FFT.FileManagement
       }
 
       return bytes;
+    }
+
+    /// <inheritdoc/>
+    public async ValueTask<int> ReadBytesAsync(string relativePath, IBufferWriter<byte> writer)
+    {
+      using var stream = new FileStream(ToFullPath(relativePath), FileMode.Open);
+
+      if (stream.Length > int.MaxValue)
+        throw new System.Exception("Stream is too long.");
+
+      var bufferSize = Max(1024, Min((int)stream.Length, 64 * 1024));
+      while (stream.Position < stream.Length)
+      {
+        var memory = writer.GetMemory(bufferSize);
+        writer.Advance(await stream.ReadAsync(memory));
+      }
+
+      return (int)stream.Length;
     }
 
     /// <inheritdoc/>

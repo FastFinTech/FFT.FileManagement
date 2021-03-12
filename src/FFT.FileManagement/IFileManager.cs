@@ -3,6 +3,7 @@
 
 namespace FFT.FileManagement
 {
+  using System.Buffers;
   using System.IO;
   using System.Threading.Tasks;
 
@@ -62,5 +63,13 @@ namespace FFT.FileManagement
     /// exist.
     /// </summary>
     ValueTask<byte[]?> ReadBytesAsync(string relativePath);
+
+    /// <summary>
+    /// Reads the content of the file at the given <paramref
+    /// name="relativePath"/> into the given <paramref name="writer"/>.
+    /// Returns the number of bytes written. Returns <c>0</c> if the file is
+    /// empty or does not exist.
+    /// </summary>
+    ValueTask<int> ReadBytesAsync(string relativePath, IBufferWriter<byte> writer);
   }
 }
