@@ -5,7 +5,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>true</IsPackable>
 
-    <PackageId>FFT.FileManager</PackageId>
+    <PackageId>FFT.FileManagement</PackageId>
     <Summary>Manages application files relative to a particular directory.</Summary>
     <Description>$(Summary)</Description>
     <Company>True Goodwill</Company>
