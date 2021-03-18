@@ -3,6 +3,7 @@
 
 namespace FFT.FileManagement
 {
+  using System;
   using System.Buffers;
   using System.IO;
   using System.Threading.Tasks;
@@ -48,14 +49,28 @@ namespace FFT.FileManagement
     /// <paramref name="relativePath"/> and waits for the file stream to be
     /// flushed. Existing files will be overwritten.
     /// </summary>
-    ValueTask WriteBytesAsync(string relativePath, byte[] bytes);
+    ValueTask WriteBytesAsync(string relativePath, Memory<byte> bytes);
+
+    /// <summary>
+    /// Writes the given <paramref name="bytes"/> to the file at the given
+    /// <paramref name="relativePath"/> and waits for the file stream to be
+    /// flushed. Existing files will be overwritten.
+    /// </summary>
+    ValueTask WriteBytesAsync(string relativePath, ReadOnlySequence<byte> bytes);
 
     /// <summary>
     /// Appends the given <paramref name="bytes"/> to the file at the given
     /// <paramref name="relativePath"/> and waits for the file stream to be
     /// flushed. A file will be created if it doesn't already exist.
     /// </summary>
-    ValueTask AppendBytesAsync(string relativePath, byte[] bytes);
+    ValueTask AppendBytesAsync(string relativePath, Memory<byte> bytes);
+
+    /// <summary>
+    /// Appends the given <paramref name="bytes"/> to the file at the given
+    /// <paramref name="relativePath"/> and waits for the file stream to be
+    /// flushed. A file will be created if it doesn't already exist.
+    /// </summary>
+    ValueTask AppendBytesAsync(string relativePath, ReadOnlySequence<byte> bytes);
 
     /// <summary>
     /// Reads the content of the file at the given <paramref
