@@ -74,16 +74,14 @@ namespace FFT.FileManagement
 
     /// <summary>
     /// Reads the content of the file at the given <paramref
-    /// name="relativePath"/>. <c>null</c> is returned if the file does not
-    /// exist.
+    /// name="relativePath"/>.
     /// </summary>
     ValueTask<byte[]?> ReadBytesAsync(string relativePath);
 
     /// <summary>
     /// Reads the content of the file at the given <paramref
     /// name="relativePath"/> into the given <paramref name="writer"/>.
-    /// Returns the number of bytes written. Returns <c>0</c> if the file is
-    /// empty or does not exist.
+    /// Returns the number of bytes written.
     /// </summary>
     ValueTask<int> ReadBytesAsync(string relativePath, IBufferWriter<byte> writer);
   }

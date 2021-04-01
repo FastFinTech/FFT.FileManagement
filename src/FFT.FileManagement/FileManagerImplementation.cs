@@ -90,7 +90,7 @@ namespace FFT.FileManagement
       using var stream = new FileStream(ToFullPath(relativePath), FileMode.Open);
 
       if (stream.Length > int.MaxValue)
-        throw new System.Exception("Stream is too long.");
+        throw new Exception("Stream is too long.");
 
       var bufferSize = Max(1024, Min((int)stream.Length, 64 * 1024));
       while (stream.Position < stream.Length)
