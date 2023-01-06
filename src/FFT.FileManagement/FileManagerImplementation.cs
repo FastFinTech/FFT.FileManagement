@@ -4,9 +4,9 @@
 namespace FFT.FileManagement
 {
   using System;
-  using System.Buffers;
   using System.IO;
   using System.Linq;
+  using System.Reflection;
   using System.Threading;
   using System.Threading.Tasks;
   using static System.Math;
@@ -55,7 +55,7 @@ namespace FFT.FileManagement
         => Cleanup(fullPath).Replace(BaseFolder, string.Empty);
 
     /// <inheritdoc/>
-    public async ValueTask<FileInfo[]> GetFileInfos(string relativeFolder, string searchPattern, SearchOption searchOption)
+    public async Task<FileInfo[]> GetFileInfos(string relativeFolder, string searchPattern, SearchOption searchOption)
       // C# doesn't yet have an api for doing this asynchronously, however, we
       // do wrap this inside Task.Run and await it so that we can prevent
       // blocking the UI if this method is being called from a UI
@@ -63,12 +63,12 @@ namespace FFT.FileManagement
       => await Task.Run(() => new DirectoryInfo(ToFullPath(relativeFolder)).GetFiles(searchPattern, searchOption));
 
     /// <inheritdoc/>
-    public async ValueTask<string[]> GetRelativePaths(string relativeFolder, string searchPattern, SearchOption searchOption)
+    public async Task<string[]> GetRelativePaths(string relativeFolder, string searchPattern, SearchOption searchOption)
       => (await GetFileInfos(relativeFolder, searchPattern, searchOption))
         .Select(x => x.FullName.Replace(BaseFolder, string.Empty)).ToArray();
 
     /// <inheritdoc/>
-    public async ValueTask<byte[]?> ReadBytesAsync(string relativePath)
+    public async Task<byte[]?> ReadBytesAsync(string relativePath)
     {
       using var stream = new FileStream(ToFullPath(relativePath), FileMode.Open);
       var bytes = new byte[stream.Length];
@@ -84,8 +84,9 @@ namespace FFT.FileManagement
       return bytes;
     }
 
+#if NETSTANDARD2_1_OR_GREATER
     /// <inheritdoc/>
-    public async ValueTask<int> ReadBytesAsync(string relativePath, IBufferWriter<byte> writer)
+    public async Task<int> ReadBytesAsync(string relativePath, IBufferWriter<byte> writer)
     {
       using var stream = new FileStream(ToFullPath(relativePath), FileMode.Open);
 
@@ -103,7 +104,7 @@ namespace FFT.FileManagement
     }
 
     /// <inheritdoc/>
-    public async ValueTask WriteBytesAsync(string relativePath, Memory<byte> bytes)
+    public async Task WriteBytesAsync(string relativePath, Memory<byte> bytes)
     {
       using var stream = new FileStream(ToFullPath(relativePath), FileMode.Create);
       await stream.WriteAsync(bytes);
@@ -111,7 +112,7 @@ namespace FFT.FileManagement
     }
 
     /// <inheritdoc/>
-    public async ValueTask WriteBytesAsync(string relativePath, ReadOnlySequence<byte> bytes)
+    public async Task WriteBytesAsync(string relativePath, ReadOnlySequence<byte> bytes)
     {
       using var stream = new FileStream(ToFullPath(relativePath), FileMode.Create);
       foreach (var segment in bytes)
@@ -120,7 +121,7 @@ namespace FFT.FileManagement
     }
 
     /// <inheritdoc/>
-    public async ValueTask AppendBytesAsync(string relativePath, Memory<byte> bytes)
+    public async Task AppendBytesAsync(string relativePath, Memory<byte> bytes)
     {
       using var stream = new FileStream(ToFullPath(relativePath), FileMode.Append);
       await stream.WriteAsync(bytes);
@@ -128,13 +129,31 @@ namespace FFT.FileManagement
     }
 
     /// <inheritdoc/>
-    public async ValueTask AppendBytesAsync(string relativePath, ReadOnlySequence<byte> bytes)
+    public async Task AppendBytesAsync(string relativePath, ReadOnlySequence<byte> bytes)
     {
       using var stream = new FileStream(ToFullPath(relativePath), FileMode.Append);
       foreach (var segment in bytes)
         await stream.WriteAsync(segment);
       await stream.FlushAsync();
     }
+#else
+    /// <inheritdoc />
+    public async Task WriteBytesAsync(string relativePath, byte[] bytes)
+    {
+      using var stream = new FileStream(ToFullPath(relativePath), FileMode.Create);
+      foreach (var segment in bytes)
+        await stream.WriteAsync(bytes, 0, bytes.Length);
+      await stream.FlushAsync();
+    }
+
+    /// <inheritdoc />
+    public async Task AppendBytesAsync(string relativePath, byte[] bytes)
+    {
+      using var stream = new FileStream(ToFullPath(relativePath), FileMode.Append);
+      await stream.WriteAsync(bytes, 0, bytes.Length);
+      await stream.FlushAsync();
+    }
+#endif
 
     private static string Cleanup(string path)
     {

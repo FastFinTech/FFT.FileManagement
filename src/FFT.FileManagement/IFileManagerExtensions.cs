@@ -15,14 +15,14 @@ namespace FFT.FileManagement
     /// Writes the given <paramref name="value"/> in UTF-8 format to the given
     /// <paramref name="relativePath"/>.
     /// </summary>
-    public static ValueTask WriteUtf8StringAsync(this IFileManager dataFiles, string relativePath, string value)
+    public static Task WriteUtf8StringAsync(this IFileManager dataFiles, string relativePath, string value)
       => dataFiles.WriteBytesAsync(relativePath, value.GetBytes());
 
     /// <summary>
     /// Appends the given <paramref name="value"/> in UTF-8 format to the given
     /// <paramref name="relativePath"/>.
     /// </summary>
-    public static ValueTask AppendUtf8StringAsync(this IFileManager dataFiles, string relativePath, string value)
+    public static Task AppendUtf8StringAsync(this IFileManager dataFiles, string relativePath, string value)
       => dataFiles.AppendBytesAsync(relativePath, value.GetBytes());
 
     /// <summary>
@@ -30,7 +30,7 @@ namespace FFT.FileManagement
     /// name="relativePath"/>. The file is assumed to contain a string with UTF8
     /// encoding. Returns <c>null</c> if the file does not exist.
     /// </summary>
-    public static async ValueTask<string?> ReadUtf8StringAsync(this IFileManager dataFiles, string relativePath)
+    public static async Task<string?> ReadUtf8StringAsync(this IFileManager dataFiles, string relativePath)
       => (await dataFiles.ReadBytesAsync(relativePath))?.GetString();
 
     private static byte[] GetBytes(this string value)
